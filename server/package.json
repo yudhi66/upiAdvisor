@@ -1,0 +1,19 @@
+{
+  "name": "upiadvisor",
+  "version": "1.0.0",
+  "description": "upi reporting platform",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.3"
+  }
+}
