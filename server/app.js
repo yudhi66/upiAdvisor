@@ -1,6 +1,8 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import { errorMiddleware } from "./src/middlewares/error.middleware.js"
+import userRouter from "./src/routes/user.routes.js" 
 
 
 const app=express()
@@ -15,7 +17,7 @@ app.use(express.json({
     limit:"25kb"
 }))
 
-//public static to be added
+
 
 
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
@@ -23,6 +25,14 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}))
 app.use(cookieParser())
 
 
+ 
+app.use("/api/v1/users",userRouter)
 
+
+
+
+
+
+app.use(errorMiddleware);
 
 export {app}
