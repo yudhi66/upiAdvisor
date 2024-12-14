@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser"
 import { errorMiddleware } from "./src/middlewares/error.middleware.js"
 import userRouter from "./src/routes/user.routes.js" 
 
+import upiRouter from "./src/routes/upi.routes.js"
+
 
 const app=express()
 
@@ -27,6 +29,9 @@ app.use(cookieParser())
 
  
 app.use("/api/v1/users",userRouter)
+
+
+app.use("/api/v1/upi",upiRouter)
 
 
 
