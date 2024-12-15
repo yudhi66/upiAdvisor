@@ -20,6 +20,33 @@ const reporting =asyncHandler(async(req,res)=>{
     const baseUpi=extractBaseUpi(upi);
      
     const existingUpi=await Upi.findOne({baseUpi});
+    if(!existingUpi){
+
+
+        const newReport=await Upi.create({
+            baseUpi,
+            reportedBy:[user._id],
+            associatedUpi:[upi],
+            count:1,
+
+        })
+
+        const createdReport=await Upi.findById(newReport._id).select(
+            "-reportedBy"
+        )
+
+              if(!createdReport){
+                throw new ApiError(500,"Something went wrong while reporting please retry after some time")
+              }
+
+              return res.status(200).json(
+                new ApiResponse(200,createdReport,"Reported Succesfully")
+              )
+
+    }
+
+
+
    //check if user already reported before counter if existing
    //create if not existing
    
