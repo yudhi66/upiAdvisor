@@ -3,7 +3,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { reporting } from "../controller/reporting.controller.js";
 
 import {fetchReport } from "../controller/fetchingReport.controller.js";
-import { createComment } from "../controller/commenting.controller.js";
+import { createComment,fetchComment } from "../controller/commenting.controller.js";
 const router=Router();
 
 
@@ -13,6 +13,8 @@ router.route("/fetchReport").post(fetchReport)
 
 
 router.route("/createComment").post(verifyJWT,createComment)
+
+router.route("/getComment").get(fetchComment)
 
 
 
