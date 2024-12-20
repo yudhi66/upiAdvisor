@@ -40,8 +40,8 @@ const createComment=asyncHandler(async(req,res)=>{
 })
 
 const fetchComment=asyncHandler(async(req,res)=>{
-      const {upi}=req.query;
-
+      const {upi ,page=1}=req.query;
+      const limit=10 ;
       if(!upi){
         throw new ApiError(403,"Couldn't retrive comment")
       }
@@ -82,34 +82,56 @@ const fetchComment=asyncHandler(async(req,res)=>{
         {
           $unwind: {
             path: "$commentOwner",
-            preserveNullAndEmptyArrays: false, // Optional, for cases where the comment has no associated user
+            preserveNullAndEmptyArrays: false,  
           },
-        },
-        {
-          $project: {
-            "comment._id": "$result._id",
-            "comment.content": "$result.content",
-            "comment.ownerDetails.username": "$commentOwner.username",
-            _id: 0,
-          },
-        },
-      ]);
+        },{
+          $facet:{
+            metadata:[{$count:"totalCount"}],
+             data:[
+            {$skip:(page-1)*limit},
+            {$limit:limit},{
 
+              $project: {
+                "comment._id": "$result._id",
+                "comment.content": "$result.content",
+                "comment.ownerDetails.username": "$commentOwner.username",
+                _id: 0,
+              },
+
+            }
+              
+             ]
+
+
+          }
+        },
+        
+
+        
+         
+      ]);
+       
+
+      const totalCount=commentList[0]?.metadata[0]?.totalCount || 0 ;
+
+      const data=commentList[0]?.data || [];
         
     if(!commentList){
         throw new ApiError(402,"No comments found")
     }
 
-    if(commentList.length==0){
+    if(data.length==0){
 
         return res.status(200).json(
-            new ApiResponse(200,{},"0 comments on  this upi")
+            new ApiResponse(200,{totalPages:0,commentList:data,totalComment:totalCount},"0 comments on  this page")
           )
 
     }
+
+    const totalPages=Math.ceil(totalCount/limit);
        
       return res.status(200).json(
-        new ApiResponse(200,commentList,"Comment fetched")
+        new ApiResponse(200,{totalPages,commentList:data,totalComment:totalCount},"Comment fetched")
       )
 })
 
