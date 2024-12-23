@@ -137,5 +137,40 @@ const fetchComment=asyncHandler(async(req,res)=>{
 
 
 
+const deleteComment=asyncHandler(async(req,res)=>{
+  const user=req.user;
+   const {id}=req.body;
+   
+  if (!id) {
+    throw new ApiError(400, "Comment ID is required");
+  }
+   
+  
+   if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, "Invalid comment ID format");
+  }
+  console.log("jello")
+  const objectId = new mongoose.Types.ObjectId(id);
+ 
+  
+     
+   const comment=await Comment.findById(objectId);
+    
+   if(!comment){
+    throw new ApiError(401,"Couldn't delete the comment");
+   }
 
-export {createComment,fetchComment};
+   if(!comment.owner.equals(user._id)){
+    throw new ApiError(401,"Unauthorized request");;
+   }
+   await Comment.deleteOne({ _id: objectId});
+
+   return res.status(200).json(new ApiResponse(200,{},"Comment deleted successfully"));
+
+
+})
+
+
+
+
+export {createComment,fetchComment,deleteComment};
