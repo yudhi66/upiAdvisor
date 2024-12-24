@@ -135,8 +135,50 @@ const logOutUser=asyncHandler(async (req,res)=>{
 })
 
 
+const updatePassword=asyncHandler(async (req,res)=>{  
 
-export {createUser,loginUser,logOutUser};
+   const tempUser=req.user;
+   const {oldPassword,newPassword}=req.body;
+
+
+   if(!oldPassword || !newPassword){
+      throw new ApiError(402,"Old and new password required")
+   }
+
+   if(oldPassword===newPassword){
+      throw new ApiError(402,"New password should be different from old password")
+   }
+
+
+   const user=await User.findById(tempUser._id);
+
+   if(!user){
+      throw new ApiError(402,"Couldnt update password try after some time")
+   }
+
+   const isOldPasswordValid=await user.passwordCheck(oldPassword);
+
+   if(!isOldPasswordValid){
+      throw new ApiError(404,"Incorrect old password")
+   }
+
+
+   user.password=newPassword;
+
+   await user.save({validateBeforeSave:false})
+
+
+
+   return res.status(200).json(new ApiResponse(200,{},"Password Changed Successfully"));
+
+
+
+
+})
+
+
+
+export {createUser,loginUser,logOutUser,updatePassword};
 
 
 

@@ -149,7 +149,7 @@ const deleteComment=asyncHandler(async(req,res)=>{
    if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new ApiError(400, "Invalid comment ID format");
   }
-  console.log("jello")
+ 
   const objectId = new mongoose.Types.ObjectId(id);
  
   
