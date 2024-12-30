@@ -33,12 +33,33 @@ const generateOtp=asyncHandler(async(req,res)=>{
      }
 
 
-     return res.status(200).json(new ApiResponse(200,{},"You will receive password reset otp in inbox if you are registered user otp is only valid for 5 minutes"))
+     return res.status(200).json(new ApiResponse(200,{},"You will receive password reset otp in inbox if you are registered user otp is only valid for 5 minutes if not found check spam folder"))
 
 
        
 })
 
 
+const validateOtp=asyncHandler(async (req,res)=>{
+    const {otp,email,newPassword}=req.body
 
-export {generateOtp};
+    const correctOtp=await redis.get(`${email}:otp`)
+
+    if(otp===correctOtp){
+      const user=await User.findOne({email});
+ 
+      if(!user){
+        throw new ApiError(402,"Couldnt update password try after some time")
+      }
+      user.password=newPassword;
+      await user.save({validateBeforeSave:false})
+
+      return res.status(200).json(new ApiResponse(200,{},"password updated successfully"))
+    }else{
+      return res.status(401).json(new ApiResponse(401,{},"otp verification failed"))
+    }
+
+})
+
+
+export {generateOtp,validateOtp};
