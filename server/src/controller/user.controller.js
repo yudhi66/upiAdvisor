@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
+import jwt from "jsonwebtoken";
 
 const generateToken=async(userId)=>{
    try {
@@ -176,9 +177,49 @@ const updatePassword=asyncHandler(async (req,res)=>{
 
 })
 
+const getUser=asyncHandler(async (req,res)=>{
+  console.log("hello");
+
+  const incomingRefreshToken=req.cookies.refreshToken;
+   
+
+  if(!incomingRefreshToken){
+   return res.status(401).json(new ApiResponse(401, {}, "Not logged in"));
+  }
+
+ 
+   const decodedToken=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
+
+   const user=await User.findById(decodedToken?._id).select("-password");
+    if(!user || incomingRefreshToken!==user?.refreshToken){
+      return res.status(401).json(new ApiResponse(401, {}, "Not logged in"));
+    }
+    
+    const accessToken=user.generateAccessToken();
+    const options={
+      httpOnly:true,
+      secure:true
+     }
+
+     return res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",incomingRefreshToken,options).json(
+      new ApiResponse(
+        200,
+        user,
+        "Access token refreshed successfully"
+      ));
 
 
-export {createUser,loginUser,logOutUser,updatePassword};
+ 
+
+  
+
+
+})
+
+ 
+
+
+export {createUser,loginUser,logOutUser,updatePassword,getUser};
 
 
 
