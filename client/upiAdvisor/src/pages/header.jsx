@@ -2,9 +2,11 @@
  
  import Container from "../components/container.jsx"
 import { useNavigate } from 'react-router-dom';
- 
+ import { useSelector } from "react-redux";
 
 function Header() {
+  const authStatus=useSelector((state)=>state.auth.status)
+  
   const navigate = useNavigate();
 
   const navItems = [
@@ -16,13 +18,17 @@ function Header() {
     {
       name: 'Login',
       slug: '/login',
-      active: true,
+      active: !authStatus,
     },
     {
       name: 'Register',
       slug: '/signup',
-      active: true,
-    },
+      active: !authStatus,
+    },{
+      name:'Logout',
+      slug:'/',
+      active: authStatus
+    }
    
   ];
 
