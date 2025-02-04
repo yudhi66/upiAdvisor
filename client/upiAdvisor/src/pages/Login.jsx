@@ -2,8 +2,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './login.css'
+import { useDispatch } from 'react-redux';
+import {login} from "../store/authSlice.js"
 function Login() {
     const navigate = useNavigate();
+    const dispatch =useDispatch();
     const [showPassword, setShowPassword] = useState(false)
 
     const [error,setError]=useState("");
@@ -39,6 +42,7 @@ function Login() {
             return res.json();
         })
         .then(data => {
+          dispatch(login({userData:data}))
             navigate("/");
         })
         .catch(err => {
