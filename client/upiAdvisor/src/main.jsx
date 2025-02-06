@@ -7,6 +7,7 @@ import Home from './pages/home.jsx'
 import Login from './pages/Login.jsx'
  import SignUp from "./pages/signUp.jsx"
  import Profile from './pages/profile.jsx'
+ import ForgotPassword from './pages/forgotPassword.jsx'
 import { Provider } from 'react-redux'
 
 import store from './store/store.js'
@@ -32,6 +33,9 @@ import store from './store/store.js'
       path:"/profile",
       element:<Profile/>
 
+    },{
+      path:"/forgot",
+      element:<ForgotPassword/>
     }
   ]
 

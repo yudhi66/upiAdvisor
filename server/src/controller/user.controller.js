@@ -91,12 +91,11 @@ const loginUser=asyncHandler(async (req,res)=>{
   const {accessToken,refreshToken}=await generateToken(user._id);
   console.log(accessToken)
   const loggedInUser=await User.findById(user._id).select("-password -refreshToken");
-
+  const isProduction = process.env.NODE_ENV === "production";
   const options={
-   httpOnly:true,
-   secure:true
+   secure: isProduction,  
+   sameSite: isProduction ? "None" : "Lax",
   }
-
 
   return res.status(200)
   .cookie("accessToken",accessToken,options)
@@ -123,10 +122,11 @@ const logOutUser=asyncHandler(async (req,res)=>{
          new:true
       }
    )
+   const isProduction = process.env.NODE_ENV === "production";
    const options={
-      httpOnly:true,
-      secure:true
-     }
+    secure: isProduction,  
+    sameSite: isProduction ? "None" : "Lax",
+   }
 
 
      return res.status(200).clearCookie("accessToken",options)
@@ -178,7 +178,7 @@ const updatePassword=asyncHandler(async (req,res)=>{
 })
 
 const getUser=asyncHandler(async (req,res)=>{
-  console.log("hello");
+
 
   const incomingRefreshToken=req.cookies.refreshToken;
  
@@ -194,14 +194,15 @@ const getUser=asyncHandler(async (req,res)=>{
       return res.status(401).json(new ApiResponse(401, {}, "Not logged in"));
     }
     
-    const isProduction = process.env.NODE_ENV === "production";
+    
 
     const accessToken=user.generateAccessToken();
-    const options={
-      httpOnly: true,
-  secure: isProduction,  
-  sameSite: isProduction ? "None" : "Lax", 
-     }
+    const isProduction = process.env.NODE_ENV === "production";
+  const options={
+   httpOnly: true,
+   secure: isProduction,  
+   sameSite: isProduction ? "None" : "Lax",
+  }
    
      return res.status(200).cookie("accessToken",accessToken,options).cookie("refreshToken",incomingRefreshToken,options).json(
       new ApiResponse(
