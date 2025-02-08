@@ -3,31 +3,52 @@
  import Container from "../components/container.jsx"
 import { useNavigate } from 'react-router-dom';
  import { useSelector } from "react-redux";
-
+ import { useDispatch } from "react-redux";
+import { logout } from "../store/authSlice.js";
 function Header() {
   const authStatus=useSelector((state)=>state.auth.status)
-  
+  const dispatch=useDispatch();
   const navigate = useNavigate();
+
+  const handleLogout= async()=>{
+     
+    try {
+        await fetch("http://localhost:4000/api/v1/users/logout",{
+               method:"GET",
+               credentials:"include"
+        }) 
+  
+dispatch(logout());
+
+    } catch (error) {
+      console.error("logout failed",error);
+      
+    }
+  }
 
   const navItems = [
     {
       name: 'Home',
-      slug: '/',
+      
       active: true,
+      onClick:()=>navigate("/")
     },
     {
       name: 'Login',
-      slug: '/login',
+       
       active: !authStatus,
+      onClick:()=>navigate("/login")
     },
     {
       name: 'Register',
-      slug: '/signup',
+      
       active: !authStatus,
+      onClick:()=>navigate("/signup")
     },{
       name:'Logout',
       slug:'/',
-      active: authStatus
+      active: authStatus,
+      onClick:handleLogout
     }
    
   ];
@@ -49,7 +70,7 @@ function Header() {
               item.active && (
                 <li key={item.name}>
                   <button
-                    onClick={() => navigate(item.slug)}
+                    onClick={item.onClick}
                     className="inline-block px-4 py-2 duration-200 hover:bg-blue-100 hover:text-black rounded-full"
                   >
                     {item.name}

@@ -8,6 +8,7 @@ import Login from './pages/Login.jsx'
  import SignUp from "./pages/signUp.jsx"
  import Profile from './pages/profile.jsx'
  import ForgotPassword from './pages/forgotPassword.jsx'
+ import ResetPassword from './pages/resetPassword.jsx'
 import { Provider } from 'react-redux'
 
 import store from './store/store.js'
@@ -36,6 +37,9 @@ import store from './store/store.js'
     },{
       path:"/forgot",
       element:<ForgotPassword/>
+    },{
+      path:"/reset",
+      element:<ResetPassword/>
     }
   ]
 

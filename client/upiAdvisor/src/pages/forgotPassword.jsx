@@ -1,12 +1,39 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react'
 import './forgotPassword.css'
-
+import { useNavigate } from 'react-router-dom';
 function ForgotPassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('')
-
+  const [error,setError]=useState("");
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log('Reset instructions sent to:', email)
+    setError(null);
+     
+    fetch("http://localhost:4000/api/v1/users/generateOtp", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify({email})
+  })
+  .then(res => {
+      if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.message); });
+      }
+      return res.json();
+  })
+  .then(res => {
+    console.log(res)
+     
+      navigate("/reset",{state:{email}});
+  })
+  .catch(err => {
+      setError(err.message);
+  });
+
+    
   }
 
   return (
@@ -21,7 +48,7 @@ function ForgotPassword() {
         <h1 className="forgot-title">Forgot password</h1>
         
         <p className="forgot-description">
-          Enter your email address and we will send you instructions to reset your password.
+          Enter your email address and we will send you otp to reset your password.
         </p>
 
         <form onSubmit={handleSubmit} className="forgot-form">
@@ -37,9 +64,10 @@ function ForgotPassword() {
           </div>
 
           <button type="submit" className="reset-button">
-            Send reset instructions
+            Send reset otp
           </button>
         </form>
+        <h1 className='text-red-500'>{error}</h1>
       </div>
     </div>
   )

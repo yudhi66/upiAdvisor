@@ -85,7 +85,7 @@ function Login() {
                     {showPassword ? "👁️" : "👁️‍🗨️"}
                   </button>
 
-                  <h1 className='errorTag'>{error}</h1>
+                  <h1 className='text-red-500'>{error}</h1>
                 </div>
   
                 <button type="submit" className="submit-button">
