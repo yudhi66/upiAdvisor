@@ -9,6 +9,7 @@ import Login from './pages/Login.jsx'
  import Profile from './pages/profile.jsx'
  import ForgotPassword from './pages/forgotPassword.jsx'
  import ResetPassword from './pages/resetPassword.jsx'
+ import Report from './pages/reporting.jsx'
 import { Provider } from 'react-redux'
 
 import store from './store/store.js'
@@ -40,6 +41,9 @@ import store from './store/store.js'
     },{
       path:"/reset",
       element:<ResetPassword/>
+    },{
+      path:"/reporting",
+      element:<Report/>
     }
   ]
 
