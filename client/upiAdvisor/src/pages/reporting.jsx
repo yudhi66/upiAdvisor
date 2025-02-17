@@ -1,19 +1,56 @@
-import { useState } from 'react';
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import './reporting.css';
 
 function Report() {
   const navigate = useNavigate();
+  const authStatus=useSelector((state)=>state.auth.status)
+
+  const [error,setError]=useState("");
+  const [success,setSuccess]=useState("")
   const [formData, setFormData] = useState({
-    upiId: '',
-    comments: '',
+    upiId: ''
   });
+  useEffect(()=>{
+     if(!authStatus){
+      navigate('/login');
+     }
+  },[authStatus,navigate])
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Report submitted:', formData);
-    // Navigate to results page after submission
+    setError(null);
+    setSuccess(null)
+     if(!formData.upiId){
+      setError("Upi id field shouldn't be empty")
+     }
+
+     fetch("http://localhost:4000/api/v1/upi/report", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify({upi:formData.upiId})
+  })
+  .then(res => {
+      if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.message); });
+      }
+      return res.json();
+  })
+  .then(res=> {
+    setFormData({ upiId: ''});
+    setSuccess("Successfully Reported")
+   
+    
+  })
+  .catch(err => {
+    setFormData({ upiId: ''});
+      setError(err.message);
+  });
     
   };
 
@@ -51,24 +88,15 @@ function Report() {
           </div>
 
           
-
-          <div className="form-group">
-            <label htmlFor="comments">Comments</label>
-            <textarea
-              id="comments"
-              name="comments"
-              value={formData.comments}
-              onChange={handleChange}
-              placeholder="Describe what happened..."
-            />
-          </div>
-
+ 
 
 
           <button type="submit" className="submit-report">
             Submit Report
           </button>
         </form>
+        <h1 className='text-red-500'>{error}</h1>
+        <h1 className='text-green-400'>{success}</h1>
       </div>
     </div>
   );

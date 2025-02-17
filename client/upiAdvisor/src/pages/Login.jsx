@@ -46,6 +46,8 @@ function Login() {
             navigate("/");
         })
         .catch(err => {
+          setFormData({  email: '',
+            password: ''});
             setError(err.message);
         });
     }

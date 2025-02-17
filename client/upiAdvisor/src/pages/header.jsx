@@ -49,6 +49,10 @@ dispatch(logout());
       slug:'/',
       active: authStatus,
       onClick:handleLogout
+    },{
+      name:"Report",
+      active:authStatus,
+      onClick:()=>navigate("/reporting")
     }
    
   ];
