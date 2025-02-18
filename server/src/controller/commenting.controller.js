@@ -40,8 +40,8 @@ const createComment=asyncHandler(async(req,res)=>{
 })
 
 const fetchComment=asyncHandler(async(req,res)=>{
-      const {upi ,page=1}=req.query;
-      const limit=10 ;
+      const {upi}=req.body;
+   
       if(!upi){
         throw new ApiError(403,"Couldn't retrive comment")
       }
@@ -52,87 +52,66 @@ const fetchComment=asyncHandler(async(req,res)=>{
      }
 
      const commentList = await Upi.aggregate([
-        {
-          $match: {
-            _id: upiDetails._id,
-          },
+      {
+        $match: {
+          _id: upiDetails._id,
         },
-        {
-          $lookup: {
-            from: "comments",
-            localField: "_id",
-            foreignField: "associatedUpi",
-            as: "result",
-          },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "associatedUpi",
+          as: "result",
         },
-        {
-          $unwind: {
-            path: "$result",
-            preserveNullAndEmptyArrays: false,  
-          },
+      },
+      {
+        $unwind: {
+          path: "$result",
+          preserveNullAndEmptyArrays: false,  
         },
-        {
-          $lookup: {
-            from: "users",
-            localField: "result.owner",
-            foreignField: "_id",
-            as: "commentOwner",
-          },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "result.owner",
+          foreignField: "_id",
+          as: "commentOwner",
         },
-        {
-          $unwind: {
-            path: "$commentOwner",
-            preserveNullAndEmptyArrays: false,  
-          },
-        },{
-          $facet:{
-            metadata:[{$count:"totalCount"}],
-             data:[
-            {$skip:(page-1)*limit},
-            {$limit:limit},{
-
-              $project: {
-                "comment._id": "$result._id",
-                "comment.content": "$result.content",
-                "comment.ownerDetails.username": "$commentOwner.username",
-                _id: 0,
-              },
-
-            }
-              
-             ]
-
-
-          }
+      },
+      {
+        $unwind: {
+          path: "$commentOwner",
+          preserveNullAndEmptyArrays: false,  
         },
-        
-
-        
-         
-      ]);
+      },
+      {
+        $project: {
+          "comment._id": "$result._id",
+          "comment.content": "$result.content",
+          "comment.ownerDetails.username": "$commentOwner.username",
+          _id: 0,
+        },
+      }
+    ]);
+    
        
 
-      const totalCount=commentList[0]?.metadata[0]?.totalCount || 0 ;
-
-      const data=commentList[0]?.data || [];
+    if (!commentList || commentList.length === 0) {
+      throw new ApiError(402, "No comments found");
+    }
+    
+    const totalCount = commentList.length; // Total comments count
+    const data = commentList; // Entire comments list
+    
+    return res.status(200).json(
+      new ApiResponse(200, {
         
-    if(!commentList){
-        throw new ApiError(402,"No comments found")
-    }
-
-    if(data.length==0){
-
-        return res.status(200).json(
-            new ApiResponse(200,{totalPages:0,commentList:data,totalComment:totalCount},"0 comments on  this page")
-          )
-
-    }
-
-    const totalPages=Math.ceil(totalCount/limit);
-       
-      return res.status(200).json(
-        new ApiResponse(200,{totalPages,commentList:data,totalComment:totalCount},"Comment fetched")
-      )
+        commentList: data,
+        totalComment: totalCount,
+      }, `${totalCount} comments found`)
+    );
+    
 })
 
 

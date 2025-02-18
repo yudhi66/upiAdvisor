@@ -10,6 +10,7 @@ import { sendEmail } from "../utils/senmail.js";
 const generateOtp=asyncHandler(async(req,res)=>{
 
       const {email}=req.body
+      console.log(email);
 
      const  user= await User.findOne({email});
 

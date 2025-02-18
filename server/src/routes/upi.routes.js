@@ -14,7 +14,7 @@ router.route("/fetchReport").post(fetchReport)
 
 router.route("/createComment").post(verifyJWT,createComment)
 
-router.route("/getComment").get(fetchComment)
+router.route("/getComment").post(fetchComment)
 
 router.route("/deleteComment").post(verifyJWT,deleteComment)
 
