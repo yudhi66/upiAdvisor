@@ -1,0 +1,340 @@
+.results-container {
+    min-height: 100vh;
+    background-color: #000000;
+    position: relative;
+    color: white;
+    padding-bottom: 2rem;
+  }
+  
+  /* Space for navbar */
+  .nav-space {
+    height: 64px;
+  }
+  
+  .risk-banner {
+    width: 100%;
+    padding: 1rem;
+    color: white;
+    position: relative;
+    text-align: center;
+  }
+  
+  .risk-banner-high {
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  }
+  
+  .risk-banner-moderate {
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  }
+  
+  .risk-banner-safe {
+    background: linear-gradient(180deg, rgba(52, 211, 153, 0.2), rgba(52, 211, 153, 0.1));
+  }
+  
+  .risk-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .risk-level-text {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .upi-id {
+    font-family: monospace;
+    font-size: 1.25rem;
+    opacity: 0.9;
+  }
+  
+  .results-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .report-summary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(98, 255, 227, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .report-count {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .count-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #62FFE3;
+  }
+  
+  .count-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+  }
+  
+  .report-button {
+    background: #62FFE3;
+    color: #000000;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .report-button:hover {
+    background: #4CD3BA;
+    transform: translateY(-1px);
+  }
+  
+  .risk-info {
+    margin-bottom: 2rem;
+  }
+  
+  .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(98, 255, 227, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  
+  .info-box h3 {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+  }
+  
+  .associated-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 130px;
+    overflow-y: auto;
+  }
+  
+  .associated-list li {
+    color: #62FFE3;
+    font-family: monospace;
+    padding: 0.5rem;
+    background: rgba(98, 255, 227, 0.1);
+    border-radius: 4px;
+  }
+  
+  .comments-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(98, 255, 227, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+  
+  .comments-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .comments-toggle:hover {
+    color: #62FFE3;
+  }
+  
+  .comments-toggle-icon {
+    transition: transform 0.3s ease;
+  }
+  
+  .comments-toggle-icon.open {
+    transform: rotate(180deg);
+  }
+  
+  .comments-content {
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out;
+    margin-top: 0;
+    pointer-events: none;
+  }
+  
+  .comments-content.open {
+    max-height: 2000px;
+    opacity: 1;
+    margin-top: 1.5rem;
+    pointer-events: all;
+  }
+  
+  .comments-section h3 {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .add-comment {
+    margin-bottom: 2rem;
+  }
+  
+  .comment-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(98, 255, 227, 0.2);
+    border: 2px solid #62FFE3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  
+  .comment-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(98, 255, 227, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+    font-family: inherit;
+    resize: none;
+    min-height: 40px;
+    transition: all 0.2s ease;
+  }
+  
+  .comment-input:focus {
+    outline: none;
+    border-color: #62FFE3;
+    background: rgba(255, 255, 255, 0.08);
+    min-height: 80px;
+  }
+  
+  .submit-comment {
+    background: #62FFE3;
+    color: #000000;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-left: 52px;
+    transition: all 0.2s ease;
+  }
+  
+  .submit-comment:hover {
+    background: #4CD3BA;
+    transform: translateY(-1px);
+  }
+  
+  .comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .pagination-button {
+    background: rgba(98, 255, 227, 0.1);
+    border: 1px solid rgba(98, 255, 227, 0.2);
+    color: #62FFE3;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .pagination-button:not(:disabled):hover {
+    background: rgba(98, 255, 227, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  .pagination-button.active {
+    background: #62FFE3;
+    color: #000000;
+  }
+  
+  .comment-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .comment-card.negative {
+    border-left: 3px solid #EF4444;
+  }
+  
+  .comment-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .comment-date {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .comment-content {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+  }
+  
+  @media (max-width: 768px) {
+    .results-content {
+      padding: 1rem;
+    }
+  
+    .report-summary {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }

@@ -1,12 +1,59 @@
  
 import { useState } from 'react'
 import './home.css'
+import {  useNavigate } from 'react-router-dom';
 function Home() {
+  const navigate=useNavigate();
     const [searchValue, setSearchValue] = useState('')
+    const [error,setError]=useState("");
 
     const handleSearch = (e) => {
       e.preventDefault()
-      console.log('Searching for:', searchValue)
+      setError(null);
+      if(!searchValue){
+        setError("Upi id field shouldn't be empty")
+        return;
+       }
+       
+       fetch("http://localhost:4000/api/v1/upi/fetchReport", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({upi:searchValue})
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.message); });
+        }
+        return res.json();
+    })
+    .then(res=> {
+      console.log(res.statusCode);
+      setSearchValue('');
+      if(res.statusCode===207){
+        console.log("hello");
+        return;
+      }
+      
+      navigate("/report",{state:{data:res.data}});
+     
+      
+    })
+    .catch(err => {
+      setSearchValue('');
+        setError(err.message);
+        console.log(error)
+    });
+
+
+
+
+
+
+
+      
     }
   
     return (
