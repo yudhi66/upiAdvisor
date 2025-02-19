@@ -8,21 +8,49 @@ function Results() {
     const location = useLocation();
     const data = location.state?.data;
    
-  
+    const [comments,setComments]=useState([]);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const commentsPerPage = 5;
+  const [error,setError]=useState("");
     useEffect(() => {
       if (!data) {
         navigate("/");
       }
-    }, [data, navigate]);
-  console.log(data);
 
-  const [comments,setComments]=useState([]);
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+      setLoading(true);
+    fetch("http://localhost:4000/api/v1/upi/getComment", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({upi:data.baseUpi})
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.message); });
+        }
+        return res.json();
+    })
+    .then(res=> {
+      setComments(res.data.commentList);
+      setLoading(false)
+      
+    })
+    .catch(err => {
+        setError(err.message);
+        setLoading(false)
+    });
+
+
+    }, [data, navigate]);
+   console.log(comments[0]?.comment.ownerDetails.username);
+
+
   const upiId = data.baseUpi;
-  const commentsPerPage = 5;
-  const [error,setError]=useState("");
+  
 
    
 
@@ -61,37 +89,9 @@ function Results() {
   const handleReport = () => {
     console.log('Report submitted');
   };
- const fetchComment=async()=>{
-    setLoading(true);
-    fetch("http://localhost:4000/api/v1/upi/getComment", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({upi:upiId})
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(err => { throw new Error(err.message); });
-        }
-        return res.json();
-    })
-    .then(res=> {
-      setComments(res.data.commentList);
-      setLoading(false)
-      
-    })
-    .catch(err => {
-        setError(err.message);
-        setLoading(false)
-    });
-
- }
+ 
   const toggleComments = () => {
-    if(comments.length===0){
-        fetchComment()
-    }
+     
     setIsCommentsOpen(!isCommentsOpen);
   };
 
@@ -177,20 +177,29 @@ function Results() {
             </div>
 
             <div className="comments-list">
-              {paginatedComments.map(comment => (
-                <div key={comment.id} className={`comment-card ${comment.rating}`}>
-                  <div className="comment-header">
-                    <div className="comment-user">
-                      <div className="user-avatar">{comment.user[0]}</div>
-                      <div className="user-info">
-                        <span className="user-name">{comment.user}</span>
-                        <span className="comment-date">{comment.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="comment-content">{comment.content}</p>
-                </div>
-              ))}
+            {paginatedComments.map(item => (
+  <div key={item.comment._id} className="comment-card negative">
+    <div className="comment-header">
+      <div className="comment-user">
+        {item.comment.ownerDetails ? (
+          <>
+            <div className="user-avatar">{item.comment.ownerDetails.username?.[0] || "A"}</div>
+            <div className="user-info">
+              <span className="user-name">{item.comment.ownerDetails.username || "Anonymous"}</span>
+            </div>
+          </>
+        ) : (
+          <div className="user-info">
+            <span className="user-name">Anonymous</span>
+          </div>
+        )}
+      </div>
+    </div>
+    <p className="comment-content">{item.comment.content}</p>
+  </div>
+))}
+
+
             </div>
 
             {totalPages > 1 && (
