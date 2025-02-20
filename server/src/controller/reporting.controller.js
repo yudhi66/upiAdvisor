@@ -47,29 +47,51 @@ const reporting =asyncHandler(async(req,res)=>{
     }else{
 
         if(existingUpi.reportedBy.includes(user._id)){
-            throw new ApiError(400,"You already reported this upi previously")
+            
+            const updatedReport = await Upi.findOneAndUpdate(
+                { baseUpi },  
+                {
+                    
+                    $addToSet: {
+                        reportedBy: user._id,  
+                        associatedUpi: upi,   
+                    },
+                },
+                {
+                    new: true,  
+                    fields: { reportedBy: 0 },  
+                }
+            );
+            if (!updatedReport) {
+                throw new ApiError(404, "Error while reporting");
+            }
+            return res.status(201).json(
+                new ApiResponse(201,updatedReport,"Reported Succesfully")
+              )
+        }else{
+            const updatedReport = await Upi.findOneAndUpdate(
+                { baseUpi },  
+                {
+                    $inc: { count: 1 },  
+                    $addToSet: {
+                        reportedBy: user._id,  
+                        associatedUpi: upi,   
+                    },
+                },
+                {
+                    new: true,  
+                    fields: { reportedBy: 0 },  
+                }
+            );
+            if (!updatedReport) {
+                throw new ApiError(404, "Error while reporting");
+            }
+            return res.status(200).json(
+                new ApiResponse(200,updatedReport,"Reported Succesfully")
+              )
         }
 
-        const updatedReport = await Upi.findOneAndUpdate(
-            { baseUpi },  
-            {
-                $inc: { count: 1 },  
-                $addToSet: {
-                    reportedBy: user._id,  
-                    associatedUpi: upi,   
-                },
-            },
-            {
-                new: true,  
-                fields: { reportedBy: 0 },  
-            }
-        );
-        if (!updatedReport) {
-            throw new ApiError(404, "Error while reporting");
-        }
-        return res.status(200).json(
-            new ApiResponse(200,updatedReport,"Reported Succesfully")
-          )
+        
          
     }
 

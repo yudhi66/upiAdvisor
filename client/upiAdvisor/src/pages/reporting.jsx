@@ -95,8 +95,8 @@ function Report() {
             Submit Report
           </button>
         </form>
-        <h1 className='text-red-500'>{error}</h1>
-        <h1 className='text-green-400'>{success}</h1>
+        <h1 className='text-red-500 text-center'>{error}</h1>
+        <h1 className='text-green-400 text-center'>{success}</h1>
       </div>
     </div>
   );

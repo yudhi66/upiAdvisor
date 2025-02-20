@@ -90,6 +90,7 @@ const fetchComment=asyncHandler(async(req,res)=>{
           "comment._id": "$result._id",
           "comment.content": "$result.content",
           "comment.ownerDetails.username": "$commentOwner.username",
+          "comment.date":"$result.createdAt",
           _id: 0,
         },
       }

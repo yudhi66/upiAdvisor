@@ -6,10 +6,13 @@ function Home() {
   const navigate=useNavigate();
     const [searchValue, setSearchValue] = useState('')
     const [error,setError]=useState("");
+   const [loading,setLoading]=useState(false);
+   const [notFound,setnotFound]=useState("")
 
     const handleSearch = (e) => {
       e.preventDefault()
       setError(null);
+      setLoading(true)
       if(!searchValue){
         setError("Upi id field shouldn't be empty")
         return;
@@ -33,18 +36,20 @@ function Home() {
       console.log(res.statusCode);
       setSearchValue('');
       if(res.statusCode===207){
-        console.log("hello");
+        setnotFound("Upi not reported till now")
+        setLoading(false)
         return;
       }
-      
-      navigate("/report",{state:{data:res.data}});
+      setLoading(false)
+      navigate("/report",{state:{data:res.data,upiId:searchValue}});
      
       
     })
     .catch(err => {
       setSearchValue('');
         setError(err.message);
-        console.log(error)
+        setLoading(false)
+     
     });
 
 
@@ -108,13 +113,26 @@ function Home() {
                 className="search-input"
               />
               <button type="submit" className="search-button">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" 
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+  {loading ? (
+    <svg
+      className="loading-spinner"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="60" strokeLinecap="round" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" 
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )}
+</button>
             </div>
           </form>
+          <h1 className='text-red-500 mt-3'>{error}</h1>
+          <h1 className='text-green-500 font-bold'>{notFound}</h1>
         </main>
       </div>
     )

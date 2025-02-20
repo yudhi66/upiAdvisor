@@ -7,18 +7,23 @@ function Results() {
     const navigate = useNavigate();
     const location = useLocation();
     const data = location.state?.data;
-   
+    const orgUpi=location.state?.upiId;
+    const [reportSubmitted, setReportSubmitted] = useState(false);
     const [comments,setComments]=useState([]);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const commentsPerPage = 5;
   const [error,setError]=useState("");
+  const[count,setCount]=useState(0);
+
+  const [associatedUpi,setAssociatedUpi]=useState([])
     useEffect(() => {
       if (!data) {
         navigate("/");
       }
-
+     setAssociatedUpi(data.associatedUpi)
+     setCount(data.count);
       setLoading(true);
     fetch("http://localhost:4000/api/v1/upi/getComment", {
         method: "POST",
@@ -36,7 +41,7 @@ function Results() {
     })
     .then(res=> {
       setComments(res.data.commentList);
-      setLoading(false)
+      setLoading(false);
       
     })
     .catch(err => {
@@ -85,9 +90,44 @@ function Results() {
         return '';
     }
   };
-
+  const [popup, setPopup] = useState({ visible: false, message: '', type: '' });
   const handleReport = () => {
-    console.log('Report submitted');
+     
+    setError(null);
+    setPopup({ visible: false, message: '', type: '' });
+    
+
+     fetch("http://localhost:4000/api/v1/upi/report", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify({upi:orgUpi})
+  })
+  .then(res => {
+      if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.message); });
+      }
+      return res.json();
+  })
+  .then(res=> {
+     if(res.statusCode===200){
+      setCount(prev=>prev+1);
+     }
+     if(!associatedUpi.includes(orgUpi)){
+      setAssociatedUpi(prev=>[...prev,orgUpi])
+
+     }
+    setPopup({ visible: true, message: 'Report submitted successfully!', type: 'success' });
+    setReportSubmitted(true);
+    
+  })
+  .catch(err => {
+    setPopup({ visible: true, message: err.message, type: 'error' });
+      
+  });
+    
   };
  
   const toggleComments = () => {
@@ -97,7 +137,7 @@ function Results() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    // Scroll to top of comments list
+    
     document.querySelector('.comments-list')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -115,19 +155,24 @@ function Results() {
       <div className="results-content">
         <div className="report-summary">
           <div className="report-count">
-            <span className="count-value">{data.count}</span>
+            <span className="count-value">{count}</span>
             <span className="count-label">Total Reports</span>
           </div>
-          <button className="report-button" onClick={handleReport}>
-            Report this UPI
-          </button>
+          <button 
+  className={`report-button ${reportSubmitted ? "disabled" : ""}`} 
+  onClick={handleReport} 
+  disabled={reportSubmitted}
+>
+  {reportSubmitted ? "Reported" : "Report this UPI"}
+</button>
+
         </div>
 
         <div className="risk-info">
           <div className="info-box">
             <h3>Associated UPI IDs</h3>
             <ul className="associated-list">
-              {data.associatedUpi.map((id, index) => (
+              {associatedUpi.map((id, index) => (
                 <li key={index}>{id}</li>
               ))}
             </ul>
@@ -186,6 +231,7 @@ function Results() {
             <div className="user-avatar">{item.comment.ownerDetails.username?.[0] || "A"}</div>
             <div className="user-info">
               <span className="user-name">{item.comment.ownerDetails.username || "Anonymous"}</span>
+              <span className="comment-date">{new Date(item.comment.date).toLocaleDateString()}</span>
             </div>
           </>
         ) : (
@@ -236,6 +282,15 @@ function Results() {
           </div>
         </div>
       </div>
+
+      {popup.visible && (
+        <div className={`popup ${popup.type}`}>
+          <span>{popup.message}</span>
+          <button onClick={() => setPopup({ ...popup, visible: false })}>Close</button>
+        </div>
+      )}
+
+
     </div>
   );
 }
