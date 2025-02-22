@@ -1,75 +1,83 @@
 /* eslint-disable no-unused-vars */
-import { useLocation, useNavigate} from 'react-router-dom';
-import { useState, useMemo ,useEffect} from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
 import './results.css';
+import { useSelector } from 'react-redux';
 
 function Results() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const data = location.state?.data;
-    const orgUpi=location.state?.upiId;
-    const [reportSubmitted, setReportSubmitted] = useState(false);
-    const [comments,setComments]=useState([]);
+  const location = useLocation();
+  const data = location.state?.data;
+  const navigate = useNavigate();
+
+  const authStatus = useSelector((state) => state.auth.status)
+  const userData = useSelector((state) => state.auth.userData);
+  console.log(userData?.userData?.username)
+
+
+
+  const orgUpi = location.state?.upiId;
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [comments, setComments] = useState([]);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const commentsPerPage = 5;
-  const [error,setError]=useState("");
-  const[count,setCount]=useState(0);
+  const [error, setError] = useState("");
+  const [count, setCount] = useState(0);
 
-  const [associatedUpi,setAssociatedUpi]=useState([])
-    useEffect(() => {
-      if (!data) {
-        navigate("/");
-      }
-     setAssociatedUpi(data.associatedUpi)
-     setCount(data.count);
-      setLoading(true);
+  const [associatedUpi, setAssociatedUpi] = useState([])
+  useEffect(() => {
+    if (!data) {
+      navigate("/");
+    }
+    setAssociatedUpi(data.associatedUpi)
+    setCount(data.count);
+    setLoading(true);
     fetch("http://localhost:4000/api/v1/upi/getComment", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({upi:data.baseUpi})
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ upi: data.baseUpi })
     })
-    .then(res => {
+      .then(res => {
         if (!res.ok) {
-            return res.json().then(err => { throw new Error(err.message); });
+          return res.json().then(err => { throw new Error(err.message); });
         }
         return res.json();
-    })
-    .then(res=> {
-      setComments(res.data.commentList);
-      setLoading(false);
-      
-    })
-    .catch(err => {
+      })
+      .then(res => {
+        setComments(res.data.commentList.reverse());
+        setLoading(false);
+
+      })
+      .catch(err => {
         setError(err.message);
         setLoading(false)
-    });
+      });
 
 
-    }, [data, navigate]);
-   console.log(comments[0]?.comment.ownerDetails.username);
+  }, [data, navigate, userData]);
+  console.log(comments[0]?.comment.ownerDetails.username);
 
 
   const upiId = data.baseUpi;
-  
 
-   
 
-  let riskLevel="";
-  if(data.count<=3){
-    riskLevel="safe"
-  }else if(data.count<15){
-     riskLevel="moderate risk"
-  }else{
-    riskLevel="high risk"
+
+
+  let riskLevel = "";
+  if (data.count <= 3) {
+    riskLevel = "safe"
+  } else if (data.count < 15) {
+    riskLevel = "moderate risk"
+  } else {
+    riskLevel = "high risk"
   }
 
 
-  
+
 
   const paginatedComments = useMemo(() => {
     const startIndex = (currentPage - 1) * commentsPerPage;
@@ -92,59 +100,62 @@ function Results() {
   };
   const [popup, setPopup] = useState({ visible: false, message: '', type: '' });
   const handleReport = () => {
-     
+    if (!authStatus) {
+      setPopup({ visible: true, message: "Login to Report", type: 'error' });
+      return;
+    }
     setError(null);
     setPopup({ visible: false, message: '', type: '' });
-    
 
-     fetch("http://localhost:4000/api/v1/upi/report", {
+
+    fetch("http://localhost:4000/api/v1/upi/report", {
       method: "POST",
       credentials: "include",
       headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({upi:orgUpi})
-  })
-  .then(res => {
-      if (!res.ok) {
+      body: JSON.stringify({ upi: orgUpi })
+    })
+      .then(res => {
+        if (!res.ok) {
           return res.json().then(err => { throw new Error(err.message); });
-      }
-      return res.json();
-  })
-  .then(res=> {
-     if(res.statusCode===200){
-      setCount(prev=>prev+1);
-     }
-     if(!associatedUpi.includes(orgUpi)){
-      setAssociatedUpi(prev=>[...prev,orgUpi])
+        }
+        return res.json();
+      })
+      .then(res => {
+        if (res.statusCode === 200) {
+          setCount(prev => prev + 1);
+        }
+        if (!associatedUpi.includes(orgUpi)) {
+          setAssociatedUpi(prev => [...prev, orgUpi])
 
-     }
-    setPopup({ visible: true, message: 'Report submitted successfully!', type: 'success' });
-    setReportSubmitted(true);
-    
-  })
-  .catch(err => {
-    setPopup({ visible: true, message: err.message, type: 'error' });
-      
-  });
-    
+        }
+        setPopup({ visible: true, message: 'Report submitted successfully!', type: 'success' });
+        setReportSubmitted(true);
+
+      })
+      .catch(err => {
+        setPopup({ visible: true, message: err.message, type: 'error' });
+
+      });
+
   };
- 
+
   const toggleComments = () => {
-     
+
     setIsCommentsOpen(!isCommentsOpen);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    
+
     document.querySelector('.comments-list')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="results-container">
       <div className="nav-space"></div>
-      
+
       <div className={`risk-banner ${getRiskBannerClass(riskLevel)}`}>
         <div className="risk-banner-content">
           <span className="risk-level-text">{riskLevel.toUpperCase()}</span>
@@ -158,13 +169,13 @@ function Results() {
             <span className="count-value">{count}</span>
             <span className="count-label">Total Reports</span>
           </div>
-          <button 
-  className={`report-button ${reportSubmitted ? "disabled" : ""}`} 
-  onClick={handleReport} 
-  disabled={reportSubmitted}
->
-  {reportSubmitted ? "Reported" : "Report this UPI"}
-</button>
+          <button
+            className={`report-button ${reportSubmitted ? "disabled" : ""}`}
+            onClick={handleReport}
+            disabled={reportSubmitted}
+          >
+            {reportSubmitted ? "Reported" : "Report this UPI"}
+          </button>
 
         </div>
 
@@ -180,32 +191,32 @@ function Results() {
         </div>
 
         <div className="comments-section">
-          <button 
+          <button
             className="comments-toggle"
             onClick={toggleComments}
             aria-expanded={isCommentsOpen}
             aria-controls="comments-content"
           >
             <h3>Comments ({comments.length})</h3>
-            <svg 
+            <svg
               className={`comments-toggle-icon ${isCommentsOpen ? 'open' : ''}`}
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path 
-                d="M19 9L12 16L5 9" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
+              <path
+                d="M19 9L12 16L5 9"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           </button>
 
-          <div 
+          <div
             id="comments-content"
             className={`comments-content ${isCommentsOpen ? 'open' : ''}`}
             aria-hidden={!isCommentsOpen}
@@ -222,28 +233,60 @@ function Results() {
             </div>
 
             <div className="comments-list">
-            {paginatedComments.map(item => (
-  <div key={item.comment._id} className="comment-card negative">
-    <div className="comment-header">
-      <div className="comment-user">
-        {item.comment.ownerDetails ? (
-          <>
-            <div className="user-avatar">{item.comment.ownerDetails.username?.[0] || "A"}</div>
-            <div className="user-info">
-              <span className="user-name">{item.comment.ownerDetails.username || "Anonymous"}</span>
-              <span className="comment-date">{new Date(item.comment.date).toLocaleDateString()}</span>
-            </div>
-          </>
-        ) : (
-          <div className="user-info">
-            <span className="user-name">Anonymous</span>
-          </div>
-        )}
-      </div>
-    </div>
-    <p className="comment-content">{item.comment.content}</p>
-  </div>
-))}
+              {paginatedComments.map(item => (
+                <div key={item.comment._id} className="comment-card negative">
+                  <div className="comment-header">
+                    <div className="comment-user">
+                      {item.comment.ownerDetails ? (
+                        <>
+                          <div className="user-avatar">{item.comment.ownerDetails.username?.[0] || "A"}</div>
+                          <div className="user-info">
+                            <span className="user-name">{item.comment.ownerDetails.username || "Anonymous"}</span>
+                            <span className="comment-date">{new Date(item.comment.date).toLocaleDateString()}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="user-info">
+                          <span className="user-name">Anonymous</span>
+                        </div>
+
+                      )
+
+
+
+                      }
+                      {item.comment.ownerDetails.username === userData?.userData?.username && (
+                        <button
+                          className="delete-comment-btn"
+                          onClick={() => console.log("hello")}
+                          aria-label="Delete comment"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="red"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-2 14H7L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                          </svg>
+                        </button>
+                      )}
+
+                    </div>
+                  </div>
+
+                  <p className="comment-content">{item.comment.content}</p>
+                </div>
+              ))}
 
 
             </div>
