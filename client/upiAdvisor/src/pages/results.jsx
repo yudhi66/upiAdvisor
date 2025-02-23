@@ -11,7 +11,7 @@ function Results() {
 
   const authStatus = useSelector((state) => state.auth.status)
   const userData = useSelector((state) => state.auth.userData);
-  console.log(userData?.userData?.username)
+
 
 
 
@@ -59,11 +59,10 @@ function Results() {
 
 
   }, [data, navigate, userData]);
-  console.log(comments[0]?.comment.ownerDetails.username);
+
 
 
   const upiId = data.baseUpi;
-
 
 
 
@@ -152,6 +151,39 @@ function Results() {
     document.querySelector('.comments-list')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const deleteComment = (id) => {
+
+    setError(null);
+    setPopup({ visible: false, message: '', type: '' });
+
+
+    fetch("http://localhost:4000/api/v1/upi/deleteComment", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id })
+    })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.message); });
+        }
+        return res.json();
+      })
+      .then(res => {
+        setComments(prev => prev.filter(item => item.comment._id !== id));
+
+
+
+
+      })
+      .catch(err => {
+        setPopup({ visible: true, message: err.message, type: 'error' });
+
+      });
+
+  }
   return (
     <div className="results-container">
       <div className="nav-space"></div>
@@ -258,7 +290,7 @@ function Results() {
                       {item.comment.ownerDetails.username === userData?.userData?.username && (
                         <button
                           className="delete-comment-btn"
-                          onClick={() => console.log("hello")}
+                          onClick={() => deleteComment(item.comment._id)}
                           aria-label="Delete comment"
                         >
                           <svg
