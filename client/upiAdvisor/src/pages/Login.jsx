@@ -27,7 +27,7 @@ function Login() {
     e.preventDefault();
     setError(null);
 
-    fetch("http://localhost:4000/api/v1/users/login", {
+    fetch(`${import.meta.env.VITE_API_URL}api/v1/users/login`, {
       method: "POST",
       credentials: "include",
       headers: {

@@ -12,7 +12,7 @@ function Results() {
   const authStatus = useSelector((state) => state.auth.status)
   const userData = useSelector((state) => state.auth.userData);
 
-
+  const [commentLoading, setCommentLoading] = useState(false)
 
 
   const orgUpi = location.state?.upiId;
@@ -20,7 +20,9 @@ function Results() {
   const [comments, setComments] = useState([]);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [refreshComments, setRefreshComments] = useState(false);
+  const [userComment, setUserComment] = useState("");
+
   const commentsPerPage = 5;
   const [error, setError] = useState("");
   const [count, setCount] = useState(0);
@@ -32,8 +34,8 @@ function Results() {
     }
     setAssociatedUpi(data.associatedUpi)
     setCount(data.count);
-    setLoading(true);
-    fetch("http://localhost:4000/api/v1/upi/getComment", {
+    setCommentLoading(true)
+    fetch(`${import.meta.env.VITE_API_URL}api/v1/upi/getComment`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -49,16 +51,16 @@ function Results() {
       })
       .then(res => {
         setComments(res.data.commentList.reverse());
-        setLoading(false);
+
 
       })
       .catch(err => {
         setError(err.message);
-        setLoading(false)
+
       });
+    setCommentLoading(false)
 
-
-  }, [data, navigate, userData]);
+  }, [data, navigate, userData, refreshComments]);
 
 
 
@@ -107,7 +109,7 @@ function Results() {
     setPopup({ visible: false, message: '', type: '' });
 
 
-    fetch("http://localhost:4000/api/v1/upi/report", {
+    fetch(`${import.meta.env.VITE_API_URL}api/v1/upi/report`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -157,7 +159,7 @@ function Results() {
     setPopup({ visible: false, message: '', type: '' });
 
 
-    fetch("http://localhost:4000/api/v1/upi/deleteComment", {
+    fetch(`${import.meta.env.VITE_API_URL}api/v1/upi/deleteComment`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -184,6 +186,53 @@ function Results() {
       });
 
   }
+
+  const handleInputChange = (e) => {
+
+    const value = e.target.value
+    setUserComment(value)
+  }
+
+
+  const submitComment = () => {
+    setCommentLoading(true)
+    if (!userComment) {
+      setPopup({ visible: true, message: "Comment shouldnt be empty", type: 'error' });
+      return;
+    }
+    if (!userData) {
+      setPopup({ visible: true, message: "Login to comment", type: 'error' });
+      setUserComment("")
+      return;
+    }
+
+    setPopup({ visible: false, message: '', type: '' })
+    fetch(`${import.meta.env.VITE_API_URL}api/v1/upi/createComment`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ associatedUpi: upiId, content: userComment })
+    }).then(res => {
+      if (!res.ok) {
+        return res.json().then(err => { throw new Error(err.message); });
+      }
+      return res.json()
+    }).then(() => {
+      setRefreshComments(prev => !prev)
+      setCommentLoading(false)
+    }
+
+
+    ).catch(err => {
+      setPopup({ visible: true, message: err.message, type: 'error' });
+      setUserComment("")
+      setCommentLoading(false)
+    })
+  }
+
+
   return (
     <div className="results-container">
       <div className="nav-space"></div>
@@ -257,11 +306,20 @@ function Results() {
               <div className="comment-header">
                 <div className="user-avatar">U</div>
                 <textarea
+
                   placeholder="Add a comment..."
                   className="comment-input"
+                  value={userComment}
+                  onChange={handleInputChange}
                 />
               </div>
-              <button className="submit-comment">Submit Comment</button>
+              <button disabled={commentLoading} className="submit-comment" onClick={() => submitComment()}>
+                {commentLoading ? (
+                  <div className="loader"></div>
+                ) : (
+                  "Submit Comment"
+                )}
+              </button>
             </div>
 
             <div className="comments-list">
