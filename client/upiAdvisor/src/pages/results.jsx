@@ -9,7 +9,7 @@ function Results() {
   const data = location.state?.data;
   const navigate = useNavigate();
 
-  const authStatus = useSelector((state) => state.auth.status)
+  const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
 
   const [commentLoading, setCommentLoading] = useState(false)
