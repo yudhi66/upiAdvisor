@@ -9,6 +9,7 @@ function Report() {
   const authStatus = useSelector((state) => state.auth.status)
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("")
   const [formData, setFormData] = useState({
     upiId: ''
@@ -23,6 +24,7 @@ function Report() {
     e.preventDefault();
     setError(null);
     setSuccess(null)
+    setLoading(true);
     if (!formData.upiId) {
       setError("Upi id field shouldn't be empty")
     }
@@ -51,6 +53,8 @@ function Report() {
         setFormData({ upiId: '' });
         setError(err.message);
       });
+
+    setLoading(false)
 
   };
 
@@ -91,8 +95,8 @@ function Report() {
 
 
 
-          <button type="submit" className="submit-report">
-            Submit Report
+          <button disabled={loading} type="submit" className="submit-report">
+            {loading ? "Reporting..." : "Report"}
           </button>
         </form>
         <h1 className='text-red-500 text-center'>{error}</h1>

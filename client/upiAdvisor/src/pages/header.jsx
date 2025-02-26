@@ -19,6 +19,7 @@ function Header() {
       })
 
       dispatch(logout());
+      navigate("/")
 
     } catch (error) {
       console.error("logout failed", error);
@@ -53,6 +54,10 @@ function Header() {
       name: "Report",
       active: authStatus,
       onClick: () => navigate("/reporting")
+    }, {
+      name: "Profile",
+      active: authStatus,
+      onClick: () => navigate("/profile")
     }
 
   ];

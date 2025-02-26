@@ -195,7 +195,7 @@ function Results() {
 
 
   const submitComment = () => {
-    setCommentLoading(true)
+
     if (!userComment) {
       setPopup({ visible: true, message: "Comment shouldnt be empty", type: 'error' });
       return;
@@ -205,7 +205,7 @@ function Results() {
       setUserComment("")
       return;
     }
-
+    setCommentLoading(true)
     setPopup({ visible: false, message: '', type: '' })
     fetch(`${import.meta.env.VITE_API_URL}api/v1/upi/createComment`, {
       method: "POST",

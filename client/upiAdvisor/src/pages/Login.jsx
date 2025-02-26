@@ -44,6 +44,7 @@ function Login() {
       .then(data => {
         dispatch(login({ userData: data }))
         navigate("/");
+        window.location.reload();
       })
       .catch(err => {
         setFormData({
