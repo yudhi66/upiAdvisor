@@ -45,9 +45,9 @@ function Report() {
       })
       .then(res => {
         setFormData({ upiId: '' });
+
+        window.location.reload();
         setSuccess("Successfully Reported")
-
-
       })
       .catch(err => {
         setFormData({ upiId: '' });

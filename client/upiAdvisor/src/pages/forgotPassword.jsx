@@ -6,10 +6,11 @@ function ForgotPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('')
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault()
     setError(null);
-
+    setLoading(true);
     fetch(`${import.meta.env.VITE_API_URL}api/v1/users/generateOtp`, {
       method: "POST",
       credentials: "include",
@@ -31,7 +32,11 @@ function ForgotPassword() {
       })
       .catch(err => {
         setError(err.message);
-      });
+      }).finally(() => {
+        setLoading(false)
+      }
+
+      );
 
 
   }
@@ -63,8 +68,8 @@ function ForgotPassword() {
             />
           </div>
 
-          <button type="submit" className="reset-button">
-            Send reset otp
+          <button type="submit" disabled={loading} className="reset-button">
+            {(loading == true) ? "Sending Otp...." : "Send reset otp"}
           </button>
         </form>
         <h1 className='text-red-500'>{error}</h1>

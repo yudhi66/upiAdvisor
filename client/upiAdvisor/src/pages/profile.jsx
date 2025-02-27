@@ -10,6 +10,12 @@ function Profile() {
     const navigate = useNavigate();
     const [userData, setUserData] = useState({});
     const [reports, setReports] = useState([{}]);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const [passwords, setPasswords] = useState({
+        currentPassword: "",
+        newPassword: ""
+    })
     useEffect(() => {
 
         if (!Data) {
@@ -25,8 +31,51 @@ function Profile() {
 
 
 
-    console.log(reports)
+    const handlePasswordChange = (e) => {
+        e.preventDefault();
+        setError(null);
+        setSuccess(null);
+        if (passwords.currentPassword === passwords.newPassword) {
+            setError("New password should be different from current password")
+            return;
+        }
+        fetch(`${import.meta.env.VITE_API_URL}api/v1/users/updatePassword`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ oldPassword: passwords.currentPassword, newPassword: passwords.newPassword })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message); });
+                }
+                return res.json();
+            })
+            .then(
+                setSuccess("Password Change SuccessFully")
+            )
+            .catch(err => {
 
+                setError(err.message);
+            });
+        setPasswords({
+            currentPassword: "",
+            newPassword: ""
+        });
+
+    }
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setPasswords(prev => ({
+            ...prev,
+            [name]: value
+
+        }))
+
+    }
 
 
 
@@ -81,7 +130,7 @@ function Profile() {
                 return (
                     <div className="content-section">
                         <h2>Change Password</h2>
-                        <form className="password-form">
+                        <form onSubmit={handlePasswordChange} className="password-form">
                             <div className="form-group">
                                 <label htmlFor="currentPassword">Current Password</label>
                                 <input
@@ -89,6 +138,8 @@ function Profile() {
                                     id="currentPassword"
                                     name="currentPassword"
                                     required
+                                    value={passwords.currentPassword}
+                                    onChange={handleChange}
                                 />
                             </div>
                             <div className="form-group">
@@ -98,11 +149,15 @@ function Profile() {
                                     id="newPassword"
                                     name="newPassword"
                                     required
+                                    value={passwords.newPassword}
+                                    onChange={handleChange}
                                 />
                             </div>
                             <button type="submit" className="submit-button">
                                 Update Password
                             </button>
+                            <h1 className='text-red-500 text-center mt-1'>{error}</h1>
+                            <h1 className='text-green-400 text-center mt-1'>{success}</h1>
                         </form>
                     </div>
                 );
@@ -132,10 +187,7 @@ function Profile() {
                 </button>
 
                 <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                    <div className="user-brief">
-                        <div className="user-avatar"></div>
-                        <h3>{userData?.userData?.username}</h3>
-                    </div>
+
                     <nav className="nav-menu">
                         <button
                             className={`nav-item ${activeSection === 'account' ? 'active' : ''}`}
