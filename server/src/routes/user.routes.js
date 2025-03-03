@@ -1,24 +1,24 @@
 import { Router } from "express";
-
-import { createUser,loginUser,logOutUser,updatePassword,getUser} from "../controller/user.controller.js";
+import { rateLimiter } from "../middlewares/ratelimiter.js";
+import { createUser, loginUser, logOutUser, updatePassword, getUser } from "../controller/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { generateOtp ,validateOtp} from "../controller/forgotPassword.js";
+import { generateOtp, validateOtp } from "../controller/forgotPassword.js";
+import { sanitizeInput } from "../middlewares/inputSantization.js";
+const router = Router();
 
-const router=Router();
 
 
+router.route("/register").post(sanitizeInput, rateLimiter, createUser)
+router.route("/login").post(sanitizeInput, rateLimiter, loginUser)
 
-router.route("/register").post(createUser)
-router.route("/login").post(loginUser)
+router.route("/logout").get(verifyJWT, logOutUser);
 
-router.route("/logout").get(verifyJWT,logOutUser);
+router.route("/updatePassword").post(sanitizeInput, verifyJWT, updatePassword);
 
-router.route("/updatePassword").post(verifyJWT,updatePassword);
-
-router.route("/generateOtp").post(generateOtp);
-router.route("/validateOtp").post(validateOtp);
+router.route("/generateOtp").post(sanitizeInput, rateLimiter, generateOtp);
+router.route("/validateOtp").post(sanitizeInput, rateLimiter, validateOtp);
 router.route("/getUser").get(getUser);
- 
+
 
 
 
